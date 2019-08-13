@@ -106,9 +106,11 @@ def model_fn(inputs, mode, **kwargs):
                        export_spec=export_spec)
 ```
 
+完整训练代码请参考：[mox_flowers_advanced.py](scripts/mox_flowers_advanced.py)
+
 在ModelArts中使用模型预测推理代码请参考：[customize_service.py](scripts/customize_service.py)
 
-完整训练代码请参考：[mox_flowers_advanced.py](scripts/mox_flowers_advanced.py)
+具体模型部署流程请参考“[华为云ModelArt帮助文档](https://support.huaweicloud.com/bestpractice-modelarts/modelarts_10_0004.html)” 部署模型.
 
 执行训练：
 
