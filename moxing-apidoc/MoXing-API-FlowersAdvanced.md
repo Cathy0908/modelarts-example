@@ -110,7 +110,7 @@ def model_fn(inputs, mode, **kwargs):
 
 在ModelArts中使用模型预测推理代码请参考：[customize_service.py](scripts/customize_service.py)
 
-具体模型部署流程请参考“[华为云ModelArt帮助文档](https://support.huaweicloud.com/bestpractice-modelarts/modelarts_10_0004.html)” 部署模型.
+具体模型部署流程请参考“[华为云ModelArt帮助文档](https://support.huaweicloud.com/bestpractice-modelarts/modelarts_10_0007.html)” 部署模型流程.
 
 执行训练：
 
