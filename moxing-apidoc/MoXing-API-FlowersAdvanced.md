@@ -130,3 +130,4 @@ python mox_flowers_advanced.py \
 具体模型部署流程请参考“[华为云ModelArt帮助文档](https://support.huaweicloud.com/bestpractice-modelarts/modelarts_10_0007.html)” 部署模型流程.
 
 本案例预测推理代码请参考：[customize_service.py](scripts/customize_service.py)
+推理配置文件请参考：[config.json](scripts/config.json)
