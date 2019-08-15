@@ -1,3 +1,4 @@
+import os
 import sys
 import tensorflow as tf
 from tensorflow.contrib import slim
@@ -32,6 +33,7 @@ def main(*args, **kwargs):
   mox.set_flag('checkpoint_exclude_patterns', checkpoint_exclude_patterns)
 
   data_meta = mox.ImageClassificationRawMetadata(base_dir=flags.data_url)
+  labels_list = data_meta.labels_list
 
   mox.set_flag('loss_scale', 1024.0)
 
@@ -102,6 +104,10 @@ def main(*args, **kwargs):
           checkpoint_path=flags.checkpoint_url,
           max_number_of_steps=sys.maxint,
           export_model=mox.ExportKeys.TF_SERVING)
+
+  # for model infer in ModelArts console
+  with mox.file.File(os.path.join(flags.train_url, 'model', 'labels.txt'), 'w') as f:
+    f.write('\n'.join(labels_list))
 
   print(time.time() - st)
 
