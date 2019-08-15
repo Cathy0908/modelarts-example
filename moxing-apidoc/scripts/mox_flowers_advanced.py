@@ -52,7 +52,7 @@ def main(*args, **kwargs):
   def model_fn(inputs, mode, **kwargs):
     images, labels = inputs
 
-    # cpu cannot support `NCHW` to infer, gpu support both 
+    # cpu cannot support model infer with `NCHW`, gpu support both 
     if mode == mox.ModeKeys.EXPORT:
       data_format = 'NHWC'
     else:
