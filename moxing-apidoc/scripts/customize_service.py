@@ -19,45 +19,9 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import h5py
 import numpy as np
 from PIL import Image
 from model_service.tfserving_model_service import TfServingBaseService
-
-
-def normalize_feature(feature):
-  return feature / np.linalg.norm(feature)
-
-
-def get_topk_result(query, all_data, query_included=True, metric_type='cosine_similarity', top_k=1):
-  """Get the nearset data to query in all_data
-
-  :param query: having shape of (1, k) where k is the number of feature dimension.
-  :param all_data: having shape of (m, k) where k is the number of feature dimension and m is the number of samples.
-  :param query_included: whether the query is included in all_data.
-  :param metric_type: metric on how to compute the similarities between any two smaples.
-  :param top_k: the top k similar examples will be returned.
-
-  :return an index or a list of index indicating the location of the most similar samples in all_data.
-  """
-  if metric_type == 'cosine_similarity':
-    similarity_scores = np.dot(np.array(query), (np.array(all_data)).T)
-    rankings = np.argsort(similarity_scores)[::-1]  # larger score means the samples are more similar
-  elif metric_type == 'euclidean_distance':
-    distances = [np.sqrt(np.sum(np.square(query, data))) for data in all_data]
-    rankings = np.argsort(distances)  # smaller distance means the samples are more similar
-  else:
-    print('No metric_type is provided!')
-  if top_k > 1:
-    if query_included:
-      return rankings[1:top_k + 1]
-    return rankings[0:top_k]
-  elif top_k == 1:
-    if query_included:
-      return rankings[1]
-    return rankings[0]
-  else:
-    print('Please set valid top_k number!')
 
 
 class CnnService(TfServingBaseService):
@@ -73,12 +37,10 @@ class CnnService(TfServingBaseService):
     return preprocessed_data
 
   def _postprocess(self, data):
-    h5f = h5py.File(os.path.join(self.model_path, 'index'), 'r')
-    labels_list = h5f['labels_list'][:]
-    is_multilabel = h5f['is_multilabel'].value
-    h5f.close()
-    print(labels_list)
-    print(data)
+    
+    with open(os.path.join(self.model_path, 'labels.txt')) as f:
+      labels_list = f.read().split('\n')
+      
     outputs = {}
 
     def softmax(x):
@@ -105,10 +67,7 @@ class CnnService(TfServingBaseService):
 
       return x
 
-    if is_multilabel:
-      predictions_list = [1 / (1 + np.exp(-p)) for p in data['logits'][0]]
-    else:
-      predictions_list = softmax(data['logits'][0])
+    predictions_list = softmax(data['logits'][0])
     predictions_list = ['%.3f' % p for p in predictions_list]
 
     scores = dict(zip(labels_list, predictions_list))
@@ -116,9 +75,7 @@ class CnnService(TfServingBaseService):
     if len(labels_list) > 5:
       scores = scores[:5]
     label_index = predictions_list.index(max(predictions_list))
-    # predicted_label = labels_list[label_index].decode('utf-8')
     predicted_label = str(labels_list[label_index])
-    print('predicted label is: %s ' % predicted_label)
     outputs['predicted_label'] = predicted_label
     outputs['scores'] = scores
     return outputs
