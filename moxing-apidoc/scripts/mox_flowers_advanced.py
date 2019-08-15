@@ -52,12 +52,17 @@ def main(*args, **kwargs):
   def model_fn(inputs, mode, **kwargs):
     images, labels = inputs
 
+    # cpu cannot support `NCHW` to infer, gpu support both 
+    if mode == mox.ModeKeys.EXPORT:
+      data_format = 'NHWC'
+    else:
+      data_format = 'NCHW'
     mox_model_fn = mox.get_model_fn(
       name=flags.model_name,
       run_mode=mode,
       num_classes=data_meta.num_classes,
       weight_decay=0.00004,
-      data_format='NCHW',
+      data_format=data_format,
       batch_norm_fused=True)
 
     images = tf.cast(images, tf.float16)
