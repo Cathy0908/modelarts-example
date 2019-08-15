@@ -93,13 +93,14 @@ mox.set_flag('loss_scale', 1024.0)
 
 MoXing-TensorFlow中可以导出一份用于TF-Serving的预测模型，可以被TF-Serving使用
 
-在model_fn的返回值`mox.ModelSpec`中指定参数`export_spec`中传入一个`mox.ExportSpec`的实例，其中`inputs_dict`用于指定输入节点，outputs_dict用于指定输出节点，模型的版本号能够自适应自增。
+在model_fn的返回值`mox.ModelSpec`中指定参数`export_spec`中传入一个`mox.ExportSpec`的实例，其中`inputs_dict`用于指定输入节点，`outputs_dict`用于指定输出节点，`version`用于指定模型导出的目录名称，ModelArts推理服务需使用`model`目录，模型的版本号能够自适应自增。
 
 ```python
 def model_fn(inputs, mode, **kwargs):
   ...
   export_spec = mox.ExportSpec(inputs_dict={'images': images},
-                               outputs_dict={'logits': logits_fp32})
+                               outputs_dict={'logits': logits_fp32}，
+                               version='model')
 
   return mox.ModelSpec(loss=loss,
                        log_info={'loss': loss, 'accuracy': accuracy},
@@ -108,9 +109,8 @@ def model_fn(inputs, mode, **kwargs):
 
 完整训练代码请参考：[mox_flowers_advanced.py](scripts/mox_flowers_advanced.py)
 
-在ModelArts中使用模型预测推理代码请参考：[customize_service.py](scripts/customize_service.py)
+注意： 在ModelArts平台部署在线服务，节点规格若选择cpu，导出模型的data_type需为`NHWC`格式，cpu不支持`NCHW`格式（训练脚本已适配），若推理节点规格选择gpu，则两种格式均支持。
 
-具体模型部署流程请参考“[华为云ModelArt帮助文档](https://support.huaweicloud.com/bestpractice-modelarts/modelarts_10_0007.html)” 部署模型流程.
 
 执行训练：
 
@@ -123,3 +123,10 @@ python mox_flowers_advanced.py \
 ```
 
 使用 4 * Nvidia-Tesla-K80 运行时间大约为：334秒，在训练集上的训练精度约为：95%
+
+
+#### 1.5.5. 在ModelArts平台 部署在线服务
+
+具体模型部署流程请参考“[华为云ModelArt帮助文档](https://support.huaweicloud.com/bestpractice-modelarts/modelarts_10_0007.html)” 部署模型流程.
+
+本案例预测推理代码请参考：[customize_service.py](scripts/customize_service.py)
