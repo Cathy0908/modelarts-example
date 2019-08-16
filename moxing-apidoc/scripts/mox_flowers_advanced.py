@@ -80,9 +80,7 @@ def main(*args, **kwargs):
 
     logits_fp32 = tf.cast(logits, tf.float32)
     accuracy = tf.reduce_mean(tf.cast(tf.nn.in_top_k(logits_fp32, labels, 1), tf.float32))
-    if mode == mox.ModeKeys.EXPORT:
-      images = tf.cast(images, tf.float32)
-    export_spec = mox.ExportSpec(inputs_dict={'images': images},
+    export_spec = mox.ExportSpec(inputs_dict={'images': tf.cast(images, tf.float32)},
                                  outputs_dict={'logits': logits_fp32},
                                  version='model')
 
