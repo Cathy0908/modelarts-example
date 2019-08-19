@@ -67,9 +67,9 @@ def main(*args, **kwargs):
       data_format=data_format,
       batch_norm_fused=True)
 
-    images = tf.cast(images, tf.float16)
+    images_fp16 = tf.cast(images, tf.float16)
     with mox.var_scope(force_dtype=tf.float32):
-      logits, _ = mox_model_fn(images)
+      logits, _ = mox_model_fn(images_fp16)
 
     labels_one_hot = slim.one_hot_encoding(labels, data_meta.num_classes)
     loss = tf.losses.softmax_cross_entropy(labels_one_hot, logits=logits)
@@ -80,7 +80,7 @@ def main(*args, **kwargs):
 
     logits_fp32 = tf.cast(logits, tf.float32)
     accuracy = tf.reduce_mean(tf.cast(tf.nn.in_top_k(logits_fp32, labels, 1), tf.float32))
-    export_spec = mox.ExportSpec(inputs_dict={'images': tf.cast(images, tf.float32)},
+    export_spec = mox.ExportSpec(inputs_dict={'images': images},
                                  outputs_dict={'logits': logits_fp32},
                                  version='model')
 
